@@ -2,9 +2,9 @@ const http = require("http");
 const fs = require("fs");
 
 var date = new Date();
-var year = date.getFullYear();
-var month = date.getMonth();
-var day = date.getDate();
+var year = date.getFullYear().toString();
+var month = date.getMonth().toString();
+var day = date.getDate().toString();
 
 var data = "Checked on " + day + "/" + month + "/" + year;
 
