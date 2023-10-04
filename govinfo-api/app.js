@@ -7,6 +7,7 @@ const { stringify } = require("./utils.js");
 const app = express();
 app.use(express.json());
 
+//Request list of collections. Response includes collectionCode,collectionName,package and granule counts
 app.get("/collections", async (req, res) => {
     const options = {
         method: "GET",
@@ -30,6 +31,7 @@ app.get("/collections", async (req, res) => {
     }
 })
 
+//Retrive new or updated packages for a collection given a start date and time
 app.get("/collections/:collection/:lastModifiedStartDate", async (req, res) => {
     const { collection, lastModifiedStartDate} = req.params;
     const options = {
@@ -53,6 +55,7 @@ app.get("/collections/:collection/:lastModifiedStartDate", async (req, res) => {
     }
 })
 
+//Retrive new or updated packages for a collection within a date range
 app.get("/collections/:collection/:lastModifiedStartDate/:lastModifiedEndDate", async (req, res) => {
     const { collection, lastModifiedStartDate, lastModifiedEndDate } = req.params;
     const options = {
@@ -76,11 +79,56 @@ app.get("/collections/:collection/:lastModifiedStartDate/:lastModifiedEndDate", 
     }
 })
 
+//Return json summary for specified package
 app.get("/packages/:packageId/summary", async (req, res) => {
     const { packageId } = req.params;
     const options = {
         method: "GET",
-        url: `https://api.govinfo.gov/collections/packages/${packageId}/summary`,
+        url: `https://api.govinfo.gov/packages/${packageId}/summary`,
+        params: {
+            api_key: process.env.API_KEY
+        },
+        headers: {
+            "Accept": "application/json"
+        }
+    }
+
+    try {
+        const response = await axios.request(options);
+        return res.status(200).send(stringify(response["data"]));
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+//Get a list of granules associated with a package
+app.get("/packages/:packageId/granules", async (req, res) => {
+    const { packageId } = req.params;
+    const options = {
+        method: "GET",
+        url: `https://api.govinfo.gov/packages/${packageId}/granules`,
+        params: {
+            api_key: process.env.API_KEY
+        },
+        headers: {
+            "Accept": "application/json"
+        }
+    }
+
+    try {
+        const response = await axios.request(options);
+        return res.status(200).send(stringify(response));
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+//Return json summary for specified granule
+app.get("/packages/:packageId/granules/:granuleId/summary", async (req, res) => {
+    const { packageId, granuleId } = req.params;
+    const options = {
+        method: "GET",
+        url: `https://api.govinfo.gov/packages/${packageId}/granules/${granuleId}/summary`,
         params: {
             api_key: process.env.API_KEY
         },
