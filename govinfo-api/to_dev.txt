@@ -1,0 +1,4 @@
+To-Dev
+-Controller Structure
+-Input Validation
+-Authentication and Authorization

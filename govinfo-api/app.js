@@ -3,7 +3,7 @@ const axios = require("axios");
 const express = require("express");
 const flatted = require("flatted");
 const util = require("util");
-const { stringify } = require("./utils.js");
+const { circular } = require("./utils.js");
 const app = express();
 app.use(express.json());
 
@@ -25,7 +25,7 @@ app.get("/collections", async (req, res) => {
 
         //return res.status(200).send(util.inspect(response["data"]["collections"]));
         //return res.status(200).send(flatted.stringify(response["data"]["collections"]));
-        return res.status(200).send(stringify(response["data"]["collections"]));
+        return res.status(200).send(circular(response["data"]["collections"]));
     } catch (err) {
         console.error(err);
     }
@@ -49,7 +49,7 @@ app.get("/collections/:collection/:lastModifiedStartDate", async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(stringify(response["data"]));
+        return res.status(200).send(circular(response["data"]));
     } catch (err) {
         console.error(err);
     }
@@ -73,7 +73,7 @@ app.get("/collections/:collection/:lastModifiedStartDate/:lastModifiedEndDate", 
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(stringify(response["data"]));
+        return res.status(200).send(circular(response["data"]));
     } catch (err) {
         console.error(err);
     }
@@ -95,7 +95,7 @@ app.get("/packages/:packageId/summary", async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(stringify(response["data"]));
+        return res.status(200).send(circular(response["data"]));
     } catch (err) {
         console.error(err);
     }
@@ -117,7 +117,7 @@ app.get("/packages/:packageId/granules", async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(stringify(response));
+        return res.status(200).send(circular(response));
     } catch (err) {
         console.error(err);
     }
@@ -139,12 +139,36 @@ app.get("/packages/:packageId/granules/:granuleId/summary", async (req, res) => 
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(stringify(response));
+        return res.status(200).send(circular(response));
     } catch (err) {
         console.error(err);
     }
 })
 
+//Retrieve list of packages based on dateIssued value
+app.get("/published/:dateIssuedStartDate", async (req, res) => {
+    const { dateIssuedStartDate } = req.params;
+    const options = {
+        method: "GET",
+        url: `https://api.govinfo.gov/published/${dateIssuedStartDate}`,
+        params: {
+            api_key: process.env.API_KEY,
+            offset: 5,
+            pageSize: 5,
+            collection: req.query.collection
+        },
+        headers: {
+            "Accept": "application/json"
+        }
+    }
+
+    try {
+        const response = await axios.request(options);
+        return res.status(200).send(circular(response["data"]));
+    } catch (err) {
+        console.error(err);
+    }
+})
 app.post("/search", async (req, res) => {
     const options = {
         method: "POST",
@@ -172,7 +196,7 @@ app.post("/search", async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(stringify(response["data"]["collections"]))
+        return res.status(200).send(circular(response["data"]["collections"]))
     } catch(err) {
         console.error(err);
     }

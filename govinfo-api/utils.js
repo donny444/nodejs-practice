@@ -1,5 +1,5 @@
 //Code snippet: https://codedamn.com/news/javascript/how-to-fix-typeerror-converting-circular-structure-to-json-in-js
-function stringify(obj) {
+function circular(obj) {
     let cache = [];
     let str = JSON.stringify(obj, function (key, value) {
         if (typeof value === "object" && value !== null) {
@@ -16,4 +16,4 @@ function stringify(obj) {
     return str;
 }
 
-module.exports = { stringify };
+module.exports = { circular };
