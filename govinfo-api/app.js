@@ -38,8 +38,8 @@ app.get("/collections/:collection/:lastModifiedStartDate", async (req, res) => {
         method: "GET",
         url: `https://api.govinfo.gov/collections/${collection}/${lastModifiedStartDate}`,
         params: {
-            offset: req.query.offset,
-            pageSize: req.query.pageSize,
+            offset: 0,
+            pageSize: 5,
             api_key: process.env.API_KEY
         },
         headers: {
@@ -62,8 +62,8 @@ app.get("/collections/:collection/:lastModifiedStartDate/:lastModifiedEndDate", 
         method: "GET",
         url: `https://api.govinfo.gov/collections/${collection}/${lastModifiedStartDate}/${lastModifiedEndDate}`,
         params: {
-            offset: req.query.offset,
-            pageSize: req.query.pageSize,
+            offset: 0,
+            pageSize: 5,
             api_key: process.env.API_KEY
         },
         headers: {
@@ -108,6 +108,8 @@ app.get("/packages/:packageId/granules", async (req, res) => {
         method: "GET",
         url: `https://api.govinfo.gov/packages/${packageId}/granules`,
         params: {
+            offset: 0,
+            pageSize: 5,
             api_key: process.env.API_KEY
         },
         headers: {
@@ -117,7 +119,7 @@ app.get("/packages/:packageId/granules", async (req, res) => {
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(circular(response));
+        return res.status(200).send(circular(response["data"]));
     } catch (err) {
         console.error(err);
     }
@@ -139,7 +141,7 @@ app.get("/packages/:packageId/granules/:granuleId/summary", async (req, res) => 
 
     try {
         const response = await axios.request(options);
-        return res.status(200).send(circular(response));
+        return res.status(200).send(circular(response["data"]));
     } catch (err) {
         console.error(err);
     }
@@ -153,7 +155,7 @@ app.get("/published/:dateIssuedStartDate", async (req, res) => {
         url: `https://api.govinfo.gov/published/${dateIssuedStartDate}`,
         params: {
             api_key: process.env.API_KEY,
-            offset: 5,
+            offset: 0,
             pageSize: 5,
             collection: req.query.collection
         },
@@ -169,7 +171,78 @@ app.get("/published/:dateIssuedStartDate", async (req, res) => {
         console.error(err);
     }
 })
-app.post("/search", async (req, res) => {
+
+//Retrive list of packages based on dateIssued value range
+app.get("/published/:dateIssuedStartDate/:dataIssuedEndDate", async (req, res) => {
+    const { dateIssuedStartDate, dateIssuedEndDate } = req.params;
+    const options = {
+        method: "GET",
+        url: `https://api.govinfo.gov/published/${dateIssuedStartDate}/${dateIssuedEndDate}`, //message: "Use proper date format : which is yyyy-MM-dd'T'HH:mm:ss'Z' or yyyy-MM-dd"
+        params: {
+            api_key: process.env.API_KEY,
+            offset: 0,
+            pageSize: 5,
+            collection: req.query.collection
+        },
+        headers: {
+            "Accept": "application/json"
+        }
+    }
+
+    try {
+        const response = await axios.request(options);
+        return res.status(200).send(circular(response["data"]));
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+//Get a list of relationships for a given accessId
+app.get("/related/:accessId", async (req, res) => {
+    const { accessId } = req.params;
+    const options = {
+        method: "GET",
+        url: `https://api.govinfo.gov/related/${accessId}`,
+        params: {
+            api_key: process.env.API_KEY
+        },
+        headers: {
+            "Accept": "application/json"
+        }
+    }
+
+    try {
+        const response = await axios.request(options);
+        return res.status(200).send(circular(response["data"]));
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+//Get a list of relationships for a given accessId
+app.get("/related/:accessId/:collection", async (req, res) => {
+    const { accessId, collection } = req.params;
+    const options = {
+        method: "GET",
+        url: `https://api.govinfo.gov/related/${accessId}/${collection}`,
+        params: {
+            api_key: process.env.API_KEY
+        },
+        headers: {
+            "Accept": "application/json"
+        }
+    }
+
+    try {
+        const response = await axios.request(options);
+        return res.status(200).send(circular(response["data"]));
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+//Discover documents on GovInfo using search queries and field operators available in the GovInfo UI (Public Preview)
+app.post("/search", async (req, res) => { //message: 'Oops, Something went wrong, Please contact govinfo team for further assistance'
     const options = {
         method: "POST",
         url: `https://api.govinfo.gov/search`,
@@ -178,7 +251,7 @@ app.post("/search", async (req, res) => {
         },
         data: {
             "query": "string",
-            "pageSize": 3,
+            "pageSize": 5,
             "offsetMark": "string",
             "sorts": [
                 {
@@ -187,7 +260,7 @@ app.post("/search", async (req, res) => {
                 }
             ],
             "historical": true,
-            "resultLevel": "default"
+            "resultLevel": "package"
         },
         headers: {
             "Accept": "application/json"
