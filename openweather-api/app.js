@@ -9,8 +9,8 @@ app.get("/", async (req, res) => {
         method: "GET",
         url: "https://api.openweathermap.org/data/3.0/onecall",
         params: {
-            lat: undefined,
-            lon: undefined,
+            lat: 33.44,
+            lon: -94.04,
             appid: process.env.API_KEY
         },
         headers: {
