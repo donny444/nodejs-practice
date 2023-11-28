@@ -2,11 +2,11 @@ async function tat(req, res) {
     try {
         const { categorycodes } = req.query;
         if(!categorycodes) {
-            return res.send("Category codes required.");
+            return res.status(400).json({ message: "Category codes required." });
         }
         const url = `https://tatapi.tourismthailand.org/tatapi/v5/places/search?keyword=${categorycodes}&categorycodes=${categorycodes}` // TAT API
         const response = await fetch(url, {
-            method: "GET", 
+            method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${process.env.API_KEY}`,
@@ -14,9 +14,10 @@ async function tat(req, res) {
             }
         })
         .then(response => response.json())
-        return res.send(response);
+        return res.status(200).json(response);
     } catch (err) {
         console.error(err);
+        return res.status(500).json({ message: "Internal Server Error"})
     }
 }
 
