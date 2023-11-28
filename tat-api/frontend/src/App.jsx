@@ -2,7 +2,7 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [category, setCategory] = useState(null);
+  const [category, setCategory] = useState("SHOP");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
@@ -32,10 +32,10 @@ function App() {
     <>
       <form onSubmit={handleSubmit}>
           <select onChange={(e) => setCategory(e.target.value)}>
-            <option value="SHOP">Shop</option>
+            <option value="SHOP" selected>Shop</option>
             <option value="RESTAURANT">Restaurant</option>
-            <option value="ACCOMMODATION">Accommodation</option>
-            <option value="ATTRACTION">Attraction</option>
+            <option value="ALL">All</option>
+            <option value="OTHER">Other</option>
           </select>
           <input type="submit" value="Submit" />
       </form>
@@ -43,8 +43,8 @@ function App() {
       {error && <p>Error: {error}</p>}
       {data &&
       <div>
-        {data.result.map((index) => (
-          <p key={index}>{data.result[index].place_name}</p>
+        {data.result.map((place, index) => (
+          <p key={index}>{place.place_name}</p>
         ))}
       </div>
       }
