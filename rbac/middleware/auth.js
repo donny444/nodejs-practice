@@ -12,7 +12,7 @@ const userRoles = {
 
 function authorize(roles) {
     return (req, res, next) => {
-        const userId = req.userId; // Assuming you have already authenticated the user and attached the userId to the request object
+        const userId = req.query.userId; // Assuming you have already authenticated the user and attached the userId to the request object
         const userRole = userRoles[userId];
 
         if (roles.includes(userRole)) {
@@ -23,15 +23,4 @@ function authorize(roles) {
     };
 }
 
-// Example routes with RBAC
-router.get('/admin-only', authorize([ROLES.ADMIN]), (req, res) => {
-    // Route logic for admin-only resource
-});
-
-router.get('/user-data', authorize([ROLES.ADMIN, ROLES.USER]), (req, res) => {
-    // Route logic for user data resource
-});
-
-router.get('/public-data', authorize([ROLES.ADMIN, ROLES.USER, ROLES.GUEST]), (req, res) => {
-    // Route logic for public data resource
-});
+module.exports = { ROLES, authorize };
