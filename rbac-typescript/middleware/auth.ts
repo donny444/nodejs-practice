@@ -1,14 +1,22 @@
-require("dotenv").config();
-const jwt = require('jsonwebtoken');
-const connection = require('../connection.js');
+import dotenv from "dotenv";
+import jwt from 'jsonwebtoken';
+import connection from '../connection.ts';
+import { Request, Response, NextFunction } from 'express';
+// import { queryCallback } from "mysql";
 
-function authenticate(req, res, next) {
-    const token = req.headers["x-access-token"];
+dotenv.config();
+
+interface AuthenticatedRequest extends Request {
+    user?: { id: string };
+}
+
+function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const token = req.headers["x-access-token"] as string;
     if(!token) {
         return res.status(403).send("A token is required for authentication");
     } else {
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: string };
             req.user = decoded;
             next();
         } catch(err) {
@@ -18,13 +26,13 @@ function authenticate(req, res, next) {
     }
 }
 
-function admin(req, res, next) {
-    const id = req.user.id;
+function admin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const id = req.user?.id;
 
     connection.query(
         "SELECT role FROM users WHERE id = ?",
         [id],
-        (err, result) => {
+        (err: any, result: any) => {
             if(err) {
                 console.error(err);
                 return res.status(500).send("Server error");
@@ -37,13 +45,13 @@ function admin(req, res, next) {
     )
 }
 
-function userOnly(req, res, next) {
-    const id = req.user.id;
+function userOnly(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    const id = req.user?.id;
 
     connection.query(
         "SELECT role FROM users WHERE id = ?",
         [id],
-        (err, result) => {
+        (err: any, result: any) => {
             if(err) {
                 console.error(err);
                 return res.status(500).send("Server error");
@@ -56,4 +64,4 @@ function userOnly(req, res, next) {
     )
 }
 
-module.exports = { authenticate, admin, userOnly };
+export { authenticate, admin, userOnly };
