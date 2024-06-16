@@ -17,6 +17,15 @@ const router = express.Router();
 //     [key: string]: string | undefined;
 // }
 
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+    role: string;
+    token?: string;
+}
+
 router.post("/signup", async (req: Request, res: Response) => {
     const { username, email, password }: { username: string, email: string, password: string } = req.body;
     try {
@@ -26,23 +35,23 @@ router.post("/signup", async (req: Request, res: Response) => {
         connection.query(
             "SELECT * FROM users WHERE username = ? OR email = ?",
             [username, email],
-            async (err, result) => {
+            async (err: Error | null, results: User[]) => {
                 if (err) {
                     console.error(err);
                 }
-                if (result.length > 0) {
+                if (results.length > 0) {
                     return res.status(409).send("User already exists");
                 } else {
                     const hashedPassword = await bcrypt.hash(password, 10);
                     connection.query(
                         "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
                         [username, email, hashedPassword, "user"],
-                        (err, result) => {
+                        (err, results) => {
                             if (err) {
                                 console.error(err);
                             }
 
-                            return res.status(201).send("User signed up successfully");
+                            return res.status(201).json(results);
                         }
                     );
                 }
@@ -62,7 +71,7 @@ router.post("/signin", async (req: Request, res: Response) => {
         connection.query(
             "SELECT * FROM users WHERE username = ? OR email = ?",
             [username, email],
-            async (err, results) => {
+            async (err: Error | null, results: User[]) => {
                 if (err) {
                     return res.status(500).send("Server error");
                 }
@@ -74,7 +83,7 @@ router.post("/signin", async (req: Request, res: Response) => {
                     // const secret: processEnv = process.env;
                     const token = jwt.sign(payload, process.env.JWT_SECRET as string, {
                         expiresIn: 60 * 60,
-                    });
+                    }); // It's worked, but I still don't get it.
                     results[0].token = token;
                     return res.status(200).json(results[0]);
                 } else {

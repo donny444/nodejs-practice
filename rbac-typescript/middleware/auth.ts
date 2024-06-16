@@ -10,6 +10,15 @@ interface AuthenticatedRequest extends Request {
     user?: { id: string };
 }
 
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+    role: string;
+    token?: string;
+}
+
 function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     const token = req.headers["x-access-token"] as string;
     if(!token) {
@@ -32,12 +41,12 @@ function admin(req: AuthenticatedRequest, res: Response, next: NextFunction) {
     connection.query(
         "SELECT role FROM users WHERE id = ?",
         [id],
-        (err: any, result: any) => {
+        (err: Error | null, results: User[]) => {
             if(err) {
                 console.error(err);
                 return res.status(500).send("Server error");
             }
-            if(result[0].role !== "admin") {
+            if(results[0].role !== "admin") {
                 return res.status(403).send("You are not authorized to access this resource");
             }
             next();
@@ -51,12 +60,12 @@ function userOnly(req: AuthenticatedRequest, res: Response, next: NextFunction) 
     connection.query(
         "SELECT role FROM users WHERE id = ?",
         [id],
-        (err: any, result: any) => {
+        (err: Error | null, results: User[]) => {
             if(err) {
                 console.error(err);
                 return res.status(500).send("Server error");
             }
-            if(result[0].role !== "user") {
+            if(results[0].role !== "user") {
                 return res.status(403).send("You are not authorized to access this resource");
             }
             next();
