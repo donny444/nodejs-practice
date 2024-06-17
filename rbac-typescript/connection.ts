@@ -1,7 +1,7 @@
-import mysql from "mysql";
+import mysql, { Connection } from "mysql";
 
 // XAMPP
-const connection = mysql.createConnection({
+const connection: Connection = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "",
