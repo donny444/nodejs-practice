@@ -2,13 +2,13 @@ const ROLES = {
     ADMIN: 'admin',
     USER: 'user',
     GUEST: 'guest'
-};
+}; // Mock-up roles data
 
 const userRoles = {
     '12345': ROLES.ADMIN,
     '67890': ROLES.USER,
     '24680': ROLES.GUEST
-};
+}; // Mock-up role for each user id
 
 function authorize(roles) {
     return (req, res, next) => {

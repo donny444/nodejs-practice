@@ -9,7 +9,7 @@ function authenticate(req, res, next) {
     } else {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = decoded;
+            req.user = decoded; // assign decoded payload to user property in request object
             next();
         } catch(err) {
             console.error(err);
@@ -22,14 +22,14 @@ function admin(req, res, next) {
     const id = req.user.id;
 
     connection.query(
-        "SELECT role FROM users WHERE id = ?",
+        "SELECT role FROM users WHERE id = ?", // user's role is in the database
         [id],
-        (err, result) => {
+        (err, results) => {
             if(err) {
                 console.error(err);
                 return res.status(500).send("Server error");
             }
-            if(result[0].role !== "admin") {
+            if(results[0].role !== "admin" /* check if user's role is admin */) {
                 return res.status(403).send("You are not authorized to access this resource");
             }
             next();
@@ -41,14 +41,14 @@ function userOnly(req, res, next) {
     const id = req.user.id;
 
     connection.query(
-        "SELECT role FROM users WHERE id = ?",
+        "SELECT role FROM users WHERE id = ?", // user's role is in the database
         [id],
-        (err, result) => {
+        (err, results) => {
             if(err) {
                 console.error(err);
                 return res.status(500).send("Server error");
             }
-            if(result[0].role !== "user") {
+            if(results[0].role !== "user" /* check if user's role is user */) {
                 return res.status(403).send("You are not authorized to access this resource");
             }
             next();

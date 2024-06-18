@@ -14,11 +14,11 @@ router.post("/register", async (req, res) => {
         connection.query(
             "SELECT * FROM users WHERE username = ? OR email = ?",
             [username, email],
-            async (err, result) => {
+            async (err, results) => {
                 if(err) {
                     console.error(err);
                 }
-                if(result.length > 0) {
+                if(results.length > 0) {
                     return res.status(409).send("User already exists");
                 }
                 else {
@@ -26,7 +26,7 @@ router.post("/register", async (req, res) => {
                     connection.query(
                         "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
                         [username, email, hashedPassword, "user"],
-                        (err, result) => {
+                        (err, results) => {
                             if(err) {
                                 console.error(err);
                             }
@@ -45,7 +45,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     const { username, email, password } = req.body;
     try {
-        if(!((username || email) && password)) {
+        if(!((username || email) && password) /* login with username or email */) {
             return res.status(400).send("All input is required");
         }
         connection.query(
@@ -66,7 +66,7 @@ router.post("/login", async (req, res) => {
                             expiresIn: 60 * 60
                         }
                     )
-                    results[0].token = token;
+                    results[0].token = token; // add token to user object
                     return res.status(200).json(results[0]);
                 }
                 else {

@@ -30,12 +30,14 @@ function VerifyToken(token) {
     }
 }
 
-// Example usage
+// Example variables
 const userId = '1234'; // Replace with the actual user ID
 const userRole = 'admin'; // Replace with the user's role
 
-// Example usage
+// Example logs
 const token = GenerateToken(userId, userRole); // Replace with the actual JWT token
 console.log(token);
 const role = VerifyToken(token);
 console.log(role);
+
+/* Example file: not being used in this directory */

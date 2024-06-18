@@ -8,7 +8,7 @@ function Authenticate(req, res, next) {
     } else {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            req.user = decoded;
+            req.user = decoded; // assign the decoded payload to the user property in request object
             next();
         } catch(err) {
             console.error(err);

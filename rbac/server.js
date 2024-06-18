@@ -9,6 +9,6 @@ const routes = require("./routes.js");
 
 app.use(express.json());
 
-app.use("/rbac", routes);
+app.use("/rbac", routes); // RBAC: Role Based Access Control
 
 server.listen(port, () => console.log(`Server is running on port ${port}`));
