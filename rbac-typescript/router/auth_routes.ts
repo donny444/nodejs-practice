@@ -60,7 +60,8 @@ router.post("/signin", async (req: Request, res: Response) => {
                     const payload = {
                         id: results[0].id as number,
                     };
-                    const token: string = jwt.sign(payload, process.env.JWT_SECRET as string, {
+                    const secret = process.env.JWT_SECRET as string;
+                    const token: string = jwt.sign(payload, secret, {
                         expiresIn: 60 * 60,
                     });
                     results[0].token = token;
